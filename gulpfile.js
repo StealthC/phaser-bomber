@@ -51,7 +51,7 @@ gulp.task('connect-reload', function () {
 
 gulp.task('connect-build', function () {
   connect.server({
-    name: 'Ashleyvania build',
+    name: 'Phaser',
     root: ['src', 'build'],
     port: 8080,
     livereload: true,
