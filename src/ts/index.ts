@@ -11,7 +11,7 @@ class SimpleGame {
   preload() {
     this.game.state.add('example', ExampleState);
   }
-  
+
   create() {
     this.game.scale.pageAlignHorizontally = true;
     this.game.scale.pageAlignVertically = true;
@@ -20,4 +20,4 @@ class SimpleGame {
     this.game.state.start('example');
   }
 }
-var game = new SimpleGame();
+let game = new SimpleGame();
