@@ -15,6 +15,6 @@ export class ExampleState extends Phaser.State {
     });
     logo.events.onInputDown.add(() => {
       this.game.add.tween(logo).to({angle: 360}, 500, Phaser.Easing.Cubic.Out, true);
-    })
+    });
   }
 }
