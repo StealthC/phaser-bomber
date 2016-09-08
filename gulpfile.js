@@ -19,6 +19,14 @@ gulp.task('default', function(callback) {
               callback);
 });
 
+gulp.task('dist', function(callback) {
+    runSequence('clean-build',
+              ['ts-build', 'clean-dist'],
+              'files-dist',
+              'js-dist',
+              callback);
+});
+
 gulp.task('clean-build', function() {
     return del(['build']);
 });
@@ -66,4 +74,18 @@ gulp.task('connect-build', function () {
 gulp.task('open-build', function(){
   gulp.src(__filename)
   .pipe(open({uri: 'http://127.0.0.1:8080'}));
+});
+
+gulp.task('clean-dist', function() {
+    return del(['dist']);
+});
+
+gulp.task('files-dist', function() {
+  return gulp.src(['src/**', '!src/ts', '!src/ts/**'])
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('js-dist', function() {
+  return gulp.src('build/**')
+    .pipe(gulp.dest('dist'));
 });
