@@ -1,12 +1,19 @@
 import {ExampleState} from './example-state';
 
-class SimpleGame {
+class SimpleGame extends Phaser.State{
 
   constructor() {
-    this.game = new Phaser.Game(800, 600, Phaser.AUTO, '', this);
+    super();
+    let config: Phaser.IGameConfig = {
+      width: 800,
+      height: 600,
+      renderer: Phaser.AUTO,
+      parent: '',
+      state: this,
+      forceSetTimeOut: false
+    };
+    this.game = new Phaser.Game(config);
   }
-
-  game: Phaser.Game;
 
   preload() {
     this.game.state.add('example', ExampleState);
