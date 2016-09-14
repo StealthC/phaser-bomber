@@ -6,8 +6,25 @@ const OPPOSITE_DIRECTIONS = {
   right: 'left',
   up: 'down',
   down: 'up'
-}
-
+};
+const EXPLOSION_TILES = {
+  left: {
+    middle: 7,
+    end: 3
+  },
+  right: {
+    middle: 7,
+    end: 4
+  },
+  up: {
+    middle: 8,
+    end: 5
+  },
+  down: {
+    middle: 8,
+    end: 6
+  }
+};
 
 export class GameState extends Phaser.State {
   player: Phaser.Sprite;
@@ -79,56 +96,37 @@ export class GameState extends Phaser.State {
     for (let i = 1; i < size + 1; i++) {
       // left
       calculateSpread(i, x - i, y, 'left');
-
       // right
-       calculateSpread(i, x + i, y, 'right');
-
+      calculateSpread(i, x + i, y, 'right');
       // up
-       calculateSpread(i, x, y - i, 'up');
-
+      calculateSpread(i, x, y - i, 'up');
       // down
-       calculateSpread(i, x, y + i, 'down');
+      calculateSpread(i, x, y + i, 'down');
     }
+
     let tile = 9;
     // Center
     this.game.add.sprite(x * 48, y * 48, 'tiles', tile, group);
+
+    let createExplosionDirections = (actualDistance: number, x: number, y: number, direction: string) => {
+       if (spread[direction] === null || spread[direction] >= actualDistance) {
+        if (actualDistance === size) {
+          tile = EXPLOSION_TILES[direction].end;
+        } else {
+          tile = EXPLOSION_TILES[direction].middle;
+        }
+        this.game.add.sprite(x * 48, y * 48, 'tiles', tile, group);
+      }
+    };
     for (let i = 1; i < size + 1; i++) {
       // left
-      if (spread.left === null || spread.left >= i) {
-        if (i === size) {
-          tile = 3;
-        } else {
-          tile = 7;
-        }
-        this.game.add.sprite((x - i) * 48, y * 48, 'tiles', tile, group);
-      }
+      createExplosionDirections(i, x - i, y, 'left');
       // right
-      if (spread.right === null || spread.right >= i) {
-        if (i === size) {
-          tile = 4;
-        } else {
-          tile = 7;
-        }
-        this.game.add.sprite((x + i) * 48, y * 48, 'tiles', tile, group);
-      }
+      createExplosionDirections(i, x + i, y, 'right');
       // up
-      if (spread.up === null || spread.up >= i) {
-        if (i === size) {
-          tile = 5;
-        } else {
-          tile = 8;
-        }
-        this.game.add.sprite(x * 48, (y - i) * 48, 'tiles', tile, group);
-      }
+      createExplosionDirections(i, x, y - i, 'up');
       // down
-      if (spread.down === null || spread.down >= i) {
-        if (i === size) {
-          tile = 6;
-        } else {
-          tile = 8;
-        }
-        this.game.add.sprite(x * 48, (y + i) * 48, 'tiles', tile, group);
-      }
+      createExplosionDirections(i, x, y + i, 'down');
     }
     this.game.time.events.add(100, () => {
       group.destroy();
