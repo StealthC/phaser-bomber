@@ -1,6 +1,6 @@
-import {ExampleState} from './example-state';
+import {GameState} from './game-state';
 
-class SimpleGame extends Phaser.State{
+class SimpleGame extends Phaser.State {
 
   constructor() {
     super();
@@ -16,7 +16,7 @@ class SimpleGame extends Phaser.State{
   }
 
   preload() {
-    this.game.state.add('example', ExampleState);
+    this.game.state.add('game', GameState);
   }
 
   create() {
@@ -24,7 +24,7 @@ class SimpleGame extends Phaser.State{
     this.game.scale.pageAlignVertically = true;
     this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.game.scale.refresh();
-    this.game.state.start('example');
+    this.game.state.start('game');
   }
 }
 let game = new SimpleGame();
