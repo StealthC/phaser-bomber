@@ -7,6 +7,7 @@ const OPPOSITE_DIRECTIONS = {
   up: 'down',
   down: 'up'
 };
+
 const EXPLOSION_TILES = {
   left: {
     middle: 7,
@@ -118,6 +119,7 @@ export class GameState extends Phaser.State {
         this.game.add.sprite(x * 48, y * 48, 'tiles', tile, group);
       }
     };
+
     for (let i = 1; i < size + 1; i++) {
       // left
       createExplosionDirections(i, x - i, y, 'left');
