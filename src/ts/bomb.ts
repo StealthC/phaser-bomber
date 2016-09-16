@@ -1,4 +1,5 @@
 import {GameState} from './game-state';
+import {Explosion} from './explosion';
 
 export class Bomb extends Phaser.Sprite {
   mapPosition: Phaser.Point = new Phaser.Point();
@@ -6,8 +7,8 @@ export class Bomb extends Phaser.Sprite {
   power: number = 1;
   timeEvent: Phaser.TimerEvent;
 
-  constructor(private gamestate: GameState, x: number, y: number, parent?: Phaser.Group) {
-    super(gamestate.game, (x * 48) + 24, (y * 48) + 24, 'tiles', 10);
+  constructor(private gamestate: GameState, mapX: number, mapY: number, parent?: Phaser.Group) {
+    super(gamestate.game, (mapX * 48) + 24, (mapY * 48) + 24, 'tiles', 10);
     if (parent) {
       parent.add(this);
     }
@@ -15,8 +16,13 @@ export class Bomb extends Phaser.Sprite {
     this.power = this.gamestate.explosionPower;
     this.game.physics.arcade.enableBody(this);
     (<Phaser.Physics.Arcade.Body>this.body).immovable = true;
-    this.mapPosition.set(x, y);
-    this.arm();
+    this.mapPosition.set(mapX, mapY);
+    if (this.gamestate.checkForExplosions(mapX, mapY)) {
+      // Explode prematuramente
+      this.explode();
+    } else {
+      this.arm();
+    }
   }
 
   arm() {
@@ -30,7 +36,7 @@ export class Bomb extends Phaser.Sprite {
     if (byExplosion) {
       this.timeEvent.timer.remove(this.timeEvent);
     }
-    this.gamestate.makeExplosion(this.mapPosition.x, this.mapPosition.y, this.power, byExplosion);
+    new Explosion(this.gamestate, this.mapPosition.x, this.mapPosition.y, this.power, byExplosion);
     this.destroy();
   }
 

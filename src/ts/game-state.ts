@@ -1,31 +1,5 @@
 import {Bomb} from './bomb';
-
-const DIRECTIONS = ['left', 'right', 'up', 'down'];
-const OPPOSITE_DIRECTIONS = {
-  left: 'right',
-  right: 'left',
-  up: 'down',
-  down: 'up'
-};
-
-const EXPLOSION_TILES = {
-  left: {
-    middle: 7,
-    end: 3
-  },
-  right: {
-    middle: 7,
-    end: 4
-  },
-  up: {
-    middle: 8,
-    end: 5
-  },
-  down: {
-    middle: 8,
-    end: 6
-  }
-};
+import {Explosion} from './explosion';
 
 export class GameState extends Phaser.State {
   player: Phaser.Sprite;
@@ -46,7 +20,9 @@ export class GameState extends Phaser.State {
   }
 
   makeBomb(x: number, y: number) {
-    let bomb = new Bomb(this, x, y, this.bombs);
+    if (!this.checkForBombs(x, y)) {
+      let bomb = new Bomb(this, x, y, this.bombs);
+    }
   }
 
   explodeBrick(x: number, y: number) {
@@ -63,76 +39,18 @@ export class GameState extends Phaser.State {
     return bomb;
   }
 
-  makeExplosion(x: number, y: number, size: number, exceptDirection?: string) {
-    let group: Phaser.Group = this.game.add.group(this.explosions);
-    let spread = {
-      left: null,
-      right: null,
-      up: null,
-      down: null
-    };
-
-    if (exceptDirection) {
-      spread[OPPOSITE_DIRECTIONS[exceptDirection]] = 0;
-    }
-
-    let bomb: Bomb;
-
-    let calculateSpread = (actualDistance: number, x: number, y: number, direction: string) => {
-      if (spread[direction] === null) {
-        if (this.map.getTile(x, y, 'walls', false)) {
-          spread[direction] = actualDistance - 1;
-        } else if (this.map.getTile(x, y, 'bricks', false)) {
-          if (!this.explosionThroughBricks) {
-            spread[direction] = actualDistance;
-          }
-          this.explodeBrick(x, y);
-        } else if (bomb = this.checkForBombs(x, y)) {
-          spread[direction] = actualDistance - 1;
-          bomb.explode(direction);
-        }
+  checkForExplosions(x: number, y: number): Explosion {
+    let explosion: Explosion = null;
+    this.explosions.forEachAlive((e: Explosion) => {
+      if (e.alive && e.checkTile(x, y)) {
+        explosion = e;
       }
-    };
-    // Calcula a trajetória da explosão
-    for (let i = 1; i < size + 1; i++) {
-      // left
-      calculateSpread(i, x - i, y, 'left');
-      // right
-      calculateSpread(i, x + i, y, 'right');
-      // up
-      calculateSpread(i, x, y - i, 'up');
-      // down
-      calculateSpread(i, x, y + i, 'down');
-    }
-
-    let tile = 9;
-    // Center
-    this.game.add.sprite(x * 48, y * 48, 'tiles', tile, group);
-
-    let createExplosionDirections = (actualDistance: number, x: number, y: number, direction: string) => {
-       if (spread[direction] === null || spread[direction] >= actualDistance) {
-        if (actualDistance === size) {
-          tile = EXPLOSION_TILES[direction].end;
-        } else {
-          tile = EXPLOSION_TILES[direction].middle;
-        }
-        this.game.add.sprite(x * 48, y * 48, 'tiles', tile, group);
-      }
-    };
-
-    for (let i = 1; i < size + 1; i++) {
-      // left
-      createExplosionDirections(i, x - i, y, 'left');
-      // right
-      createExplosionDirections(i, x + i, y, 'right');
-      // up
-      createExplosionDirections(i, x, y - i, 'up');
-      // down
-      createExplosionDirections(i, x, y + i, 'down');
-    }
-    this.game.time.events.add(100, () => {
-      group.destroy();
     }, this);
+    return explosion;
+  }
+
+  makeExplosion(x: number, y: number, power: number, exceptDirection?: string) {
+    new Explosion(this, x, y, power, exceptDirection);
   }
 
   create() {
